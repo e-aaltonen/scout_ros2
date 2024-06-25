@@ -18,10 +18,15 @@
 #include <nav_msgs/msg/odometry.hpp>
 #include <geometry_msgs/msg/twist.hpp>
 #include <tf2_ros/transform_broadcaster.h>
+<<<<<<< Updated upstream
 #include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
+=======
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>  //EA
+>>>>>>> Stashed changes
 
 #include "scout_msgs/msg/scout_status.hpp"
 #include "scout_msgs/msg/scout_light_cmd.hpp"
+#include "scout_msgs/msg/scout_rc_state.hpp"  //EA
 
 #include "ugv_sdk/mobile_robot/scout_robot.hpp"
 
@@ -47,6 +52,9 @@ class ScoutMessenger {
         node_->create_publisher<nav_msgs::msg::Odometry>(odom_topic_name_, 50);
     status_pub_ = node_->create_publisher<scout_msgs::msg::ScoutStatus>(
         "/scout_status", 10);
+    
+    rc_state_pub_ = node_->create_publisher<scout_msgs::msg::ScoutRCState>(
+        "/rc_state", 10); //EA
 
     // cmd subscriber
     motion_cmd_sub_ = node_->create_subscription<geometry_msgs::msg::Twist>(
@@ -122,6 +130,23 @@ class ScoutMessenger {
         state.light_state.rear_light.custom_value;
     status_pub_->publish(status_msg);
 
+
+    // publish RC state message //EA
+
+    scout_msgs::msg::ScoutRCState rc_state_msg; //
+
+    rc_state_msg.swa = state.rc_state.swa; //
+    rc_state_msg.swb = state.rc_state.swb; //
+    rc_state_msg.swc = state.rc_state.swc;  //
+    rc_state_msg.swd = state.rc_state.swd; //
+    rc_state_msg.stick_right_v = state.rc_state.stick_right_v; //
+    rc_state_msg.stick_right_h = state.rc_state.stick_right_h; //
+    rc_state_msg.stick_left_v = state.rc_state.stick_left_v; //
+    rc_state_msg.stick_left_h = state.rc_state.stick_left_h; //
+    rc_state_msg.var_a = state.rc_state.var_a; //
+
+    rc_state_pub_ ->publish(rc_state_msg); //EA
+    
     // publish odometry and tf
     PublishOdometryToROS(state.motion_state, dt);
 
@@ -145,6 +170,7 @@ class ScoutMessenger {
 
   rclcpp::Publisher<nav_msgs::msg::Odometry>::SharedPtr odom_pub_;
   rclcpp::Publisher<scout_msgs::msg::ScoutStatus>::SharedPtr status_pub_;
+  rclcpp::Publisher<scout_msgs::msg::ScoutRCState>::SharedPtr rc_state_pub_;  //EA
 
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr motion_cmd_sub_;
   rclcpp::Subscription<scout_msgs::msg::ScoutLightCmd>::SharedPtr
